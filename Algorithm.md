@@ -1042,3 +1042,98 @@ function solution(chicken) {
 
 
 
+#### 코드 처리하기
+
+- Code[idx]가 1일 때, 문자열일 때 분기 처리, mode가 0일때, 1일때 분기 처리하는 문제이다. 
+- 내 코드는 동작이 잘 된다. 효율성도 괜찮다. 다만 중복된 코드가 있어 줄일 필요가 있다.
+- 내 코드
+
+```js
+function solution(code) {
+    // 시작할 때 mode는 0이며, ret이 빈 문자열이라면 EMPTY를 return한다.
+    let ret = "";
+    let mode = 0;
+    // mode는 0과 1이 있으며, idx를 0 ~ code.length -1까지 +1해서 code[idx]의 값에 따라 다음과 같이 행동한다.
+    for (let idx = 0; idx <= code.length-1; idx++) {
+        if (mode == 0) {
+            if (code[idx] !== "1") {
+                if (idx % 2 === 0) ret += code[idx];
+            } else if (code[idx] === "1") {
+                mode = 1;
+            }
+        } else if (mode == 1) {
+            if (code[idx] !== "1") {
+                if (idx % 2 === 1) ret += code[idx];
+            } else if (code[idx] === "1") {
+                mode = 0;
+            }
+        }
+    }
+
+    return ret.length === 0 ? "EMPTY" : ret;
+}
+```
+
+
+
+- 베스트 코드
+
+```js
+function solution(code) {
+  let ret = "";
+  let mode = 0;
+  
+  for (let i = 0; i < code.length; i++) {
+    if (Number(code[i]) === 1) {
+      code = code === 1 ? 0 : 1;
+    }
+    // 각 mode가 홀수 or 짝수일 때 값을 추가하는 경우라면 아래왁 같이 코드를 줄일 수 있다.
+    if (Number(code[i]) !== 1 && i % 2 == mode) {
+      ret += code[i];
+    }
+  }
+  return ret.length > 0 ? ret : "EMPTY"
+}
+```
+
+
+
+#### 배열 조각하기
+
+- 이 문제는 짝수일 때 배열의 뒷 부분을 버리고 홀수일 때 앞부분을 자르는 문제이다. 
+- 내가 실수한 부분은 slice할 때 arr에서 query의 값을 인덱스 하지 않고 바로 query의 값을 인덱스해도 되는 문제였다. 
+- 내 코드
+
+```js
+function solution(arr, query) {
+    let answer = 0;
+    let i = 0;
+    while (query.length > 0) {
+        if (i % 2 == 0) {
+            arr = arr.slice(0, arr[query[0]]);
+        } else {
+            arr = arr.slice(arr[query[0]]);
+        }
+        i++;
+        query.shift();
+    }
+    return arr;
+} 
+```
+
+- 수정된 코드
+
+```js
+function solution(arr, query) {
+  let answer = 0; 
+  for (let i = 0; i < arr.length; i++) {
+    if (i % 2 == 0) {
+      arr = arr.slice(0, query[i] + 1);
+    } else {
+      arr = arr.slice(query[i])
+    }
+  }
+  return arr;
+}
+```
+
