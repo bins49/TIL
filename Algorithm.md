@@ -1137,3 +1137,223 @@ function solution(arr, query) {
 }
 ```
 
+
+
+### 유한소수 판별하기
+
+- 유한소수는 2와 5로만 구성이 되어 있어야 한다. 그 이외에 숫자로 구성된 경우 무한소수이다.
+- 문제의 핵심은 분모가 최대공약수로 나눴을 때 2, 5로만 구성되어 있는지 판별하는 것이 중요하다. 
+- 최대공약수로 분모를 나누는 데 까지 성공했으나, 그 다음에 2, 5로만 구성되어 있는지를 작성한 코드에서 문제가 발생했다.
+- 아래의 코드에서 2와 5이외의 수가 남아있는지 확인하는 코드가 없어 유한소수 무한소수 판별이 어렵다.
+- 초기 코드
+
+```js
+function solution(a, b) {
+    let answer = 0;
+    let gcd = 0;
+    let decimals = [];
+    let finit = [2, 5];
+    // 최대 공약수 만들기
+    for (let i = 1; i < b; i++) {
+        if (b % i == 0 && a % i == 0) {
+            gcd = i;
+        }
+    }
+    // 분모를 통해 유한소수 및 무한소수 판별하기 때문에 최대공약수로 약분
+    b /= gcd;
+    // 소인수 찾기
+    for (let i = 1; i <= b; i++) {
+        if (b % i == 0) decimals.push(i); 
+    }
+    return decimals.some(v => finit.includes(v)) ? 1: 2;
+}
+```
+
+- 수정된 코드
+
+```js
+function solution(a, b) {
+  let gcd = 0;
+  
+  // 최대공약수 찾기
+  for (let i = 1; i < b; i++) {
+    if (a % i == 0 && b % i == 0) {
+      gcd = i;
+    }
+  }
+  // 분모를 최대공약수로 나누기
+  b /= gcd;
+  
+  // 분모가 2와 5로만 구성되어 있는지 확인하기
+  while (b % 2 === 0) {
+    b /= 2;
+  }
+  while (b % 5 === 0) {
+    b /= 5;
+  }
+  // 분모가 1이면 2와 5로만 구성되어 있는 유한소수라고 알 수 있다.
+  return b == 1 ? 1 : 2;
+}
+```
+
+
+
+### 다항식 더하기
+
+- x는 x끼리, 숫자는 숫자끼리 더하는 문제이다. 
+- 핵심은 x끼리 분리하고, 상수는 상수끼리 분리해서 합산해서 문자열을 만드는 문제
+
+- 기존 코드
+
+```js
+function solution(polynomial) {
+    let answer = [];
+    // 동류항끼리 계산하기 위해 X의 합계
+    let xSum = 0;
+    // 상수의 합
+    let numberSum = 0;
+    
+    // x가 포함되어 있는지 여부를 판단하기 위해, 주어진 입력을 + 기준으로 split
+    let polys = polynomial.split(" + ");
+    
+    // x가 포함되어 있는지 안 되었는지 분기를 통해서 값을 합산한다.
+    for (let poly of polys) {
+        if (poly.includes("x")) {
+            // x가 1이면 그냥 더하고
+            if (poly === "x") {
+                xSum ++;
+                // x가 2 이상이라면 x를 제거해주고 상수만 더하기
+            } else {
+                xSum += parseInt(poly.replace("x", ""));
+            }
+            // 상수는 상수끼리
+        } else {
+            numberSum += parseInt(poly);
+        }
+    }
+    
+    // x를 뒤에 붙이기 0x는 넣으면 안되기 때문에 분기처리 필요!
+    if (xSum) {
+        if (xSum === 1) {
+            answer.push("x")
+        } else {
+            answer.push(`${xSum}x`)
+        }
+    }
+    
+    // 상수는 문자열로 변환하기
+    if (numberSum) {
+        answer.push(numberSum.toString());
+    }
+    
+    return answer.join(" + ");
+}
+```
+
+
+
+#### 최빈값 구하기
+
+- 배열에서 같은 수의 개수를 count해주고 거기 중에서 최빈값을 출력하고 혹시 최빈값이 2개이면 -1을 출력하는 문제
+- 수정 전 코드(맞는 코드)
+  - 배열을 제한사항에 명시된 대로 1000개를 0으로 채워서 만들고 각 숫자의 개수를 세준다.
+  - 거기서 최빈값이 1이면 최댓값을 업데이트 하고 그렇지 않으면 -1을 리턴한다.
+
+- 원래 코드
+
+```js
+function solution(array) {
+  let arr = new Array(1000).fill(0);
+  let answer = 0;
+  let max = Math.max(...arr)
+  
+  for (let i = 0; i < array.length; i++) {
+    arr[array[i]]++;
+  }
+  
+  for (let i = 0; i < arr.length; i++) {
+    if (max < arr[i]) {
+      max = arr[i];
+      answer = i;
+    } else if (max == arr[i]) {
+      answer = -1;
+    }
+  }
+  return answer;
+}
+```
+
+- 수정된 코드
+  - ES6부터 나온 Map을 활용하면 충분히 코드를 줄일 수 있다. 
+
+```js
+function solution(array) {
+  const m = new Map();
+  for (let n of array) m.set(n, (m.get(n) || 0) + 1);
+  m = [...m].sort((a, b) => b[1] - a[1]);
+  return m.length === 1 || m[0][1] > m[1][1] ? m[0][0] : -1;
+}
+```
+
+
+
+#### OX 퀴즈
+
+- 주어진 배열에서 X [연산자] Y = Z 식으로 들어있는데 이게 맞는 수식이면 "O" 틀리다면 "X"를 리턴해야 한다.
+- 초기코드
+  - 맞췄으나 너무 중복된 코드가 많다. 
+
+```js
+function solution(quiz) {
+    let answer = [];
+    
+    
+    for (let i = 0; i < quiz.length; i++) {
+        let str = quiz[i].split(" ");
+        if (str[1] == "+") {
+            if (Number(str[0]) + Number(str[2]) == Number(str[4])) {
+                answer.push("O")
+            } else {
+                answer.push("X")
+            }
+        } else if (str[1] == "-") {
+            if (Number(str[0]) - Number(str[2]) == Number(str[4])) {
+                answer.push("O")
+            } else {
+                answer.push("X")
+            }
+        }
+    }
+    return answer;
+} 
+```
+
+- 수정된 코드
+
+```js
+function solution(quiz) {
+  return quiz.map((q) => {
+    const [a, op, b, equal, result] = q.split(" ");
+    const cal = op === "+" ? Number(a) + Number(b) : Number(a) - Number(b);
+    return cal == result ? "O" : "X"
+  })
+}
+```
+
+
+
+#### 다음에 올 숫자
+
+- 등차수열, 등비수열의 배열이 주어질 때 마지막 원소 다음에 올 숫자를 리턴하는 문제
+  - 앞의 3 원소의 패턴만 살피면 풀 수 있는 문제
+
+```js
+function solution(common) {
+  let [a, b, c] = common;
+  // 마지막 원소
+  let lastElement = common[common.length - 1];
+  
+  return b - a = c - b ? lastElement += (b - a) : lastElement *= (b / a);
+}
+```
+
