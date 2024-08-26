@@ -354,3 +354,364 @@ export default App;
 #### 참조형 state
 
 - 배열이나 객체 같은 참조형 State를 사용할 때는 메소드나 할당 연산자로 값을 바꾸는 게 아니라  반드시 새로운 값을 만들어서 변경해야 한다. 
+
+  - 예시 코드
+
+  ```react
+  const [gameHistory, setGameHistory] = useState([]);
+  
+  const handleRollClick = () => {
+      const nextNum = random(6);
+      gameHistory.push(nextNum);
+      setGameHistory(gameHistory); // state가 제대로 변경되지 않는다!
+  };
+  ```
+
+  - 위의 코드가 작동하지 않는 이유는 `setGameHistory`의 state는 **배열 값 자체를 가지고 있는 게 아니라 배열의 주솟값이 변경된 것이 아니다.**
+  - 따라서 React 입장에서는 주솟값이 여전히 똑같기 때문에 상태가 바뀌었다고 판단하지 않는다.
+  - 참조형 state를 활용할 때는 반드시 새로운 참조형 값을 만들어 state를 변경해야 한다.
+  - 가장 간단한 방법은 **Spread 문법(...)** 활용하는 것이다.
+
+  - 예시 코드
+
+  ```react
+  const [gameHistory, setGameHistory] = useState([]);
+  
+  const handleRollClick = () => {
+      const nextNum = random(6);
+      setGameHistory(...gameHistory, nextNum);
+  };
+  ```
+
+
+
+#### 컴포넌트의 활용
+
+- 컴포넌트의 장점
+
+  - 반복적인 개발이 줄어든다.
+  - 오류를 고치기 쉽다.
+  - 일을 쉽게 나눌 수 있다.
+
+- 컴포넌트 재사용
+
+  - 자식 컴포넌트의 State를 부모 컴포넌트로 올려주는 걸 **state lifting**이라고 한다. 
+    - 각 컴포넌트를 한 곳에서 관리하고 싶으면 부모 컴포넌트로 옮겨 props로 내려줄 수도 있다.
+  - 예시
+
+  ```react
+  // Board.js
+  import Dice from './Dice';
+  
+  function Board({ name, color, gameHistory }) {
+    const num = gameHistory[gameHistory.length - 1] || 1;
+    const sum = gameHistory.reduce((a, b) => a + b, 0);
+    return (
+      <div>
+        <h1>{name}</h1>
+        <Dice color={color} num={num} />
+        <h2>총점</h2>
+        <p>{sum}</p>
+        <h2>기록</h2>
+        <p>{gameHistory.join(', ')}</p>
+      </div>
+    );
+  }
+  
+  export default Board;
+  ```
+
+  ```react
+  // App.js
+  import { useState } from 'react';
+  import Board from './Board';
+  import Button from './Button';
+  
+  function random(n) {
+    return Math.ceil(Math.random() * n);
+  }
+  
+  function App() {
+    const [myHistory, setMyHistory] = useState([]);
+    const [otherHistory, setOtherHistory] = useState([]);
+  
+    const handleRollClick = () => {
+      const nextMyNum = random(6);
+      const nextOtherNum = random(6);
+      setMyHistory([...myHistory, nextMyNum]);
+      setOtherHistory([...otherHistory, nextOtherNum]);
+    };
+  
+    const handleClearClick = () => {
+      setMyHistory([]);
+      setOtherHistory([]);
+    };
+  
+    return (
+      <div>
+        <Button onClick={handleRollClick}>던지기</Button>
+        <Button onClick={handleClearClick}>처음부터</Button>
+        <div>
+          <Board name="나" color="blue" gameHistory={myHistory} />
+          <Board name="상대" color="red" gameHistory={otherHistory} />
+        </div>
+      </div>
+    );
+  }
+  
+  export default App;
+  ```
+
+
+
+### 리액트가 렌더링하는 방식
+
+- 기존에 자바스크립트에서는 어떤 값이 변경되어 있을때 아래의 코드처럼 주사위의 어떤 값이 변경되었을 때 새로운 값을 업데이트 하는 코드를 작성하게 된다.
+
+```js
+const handleRollClick = () => {
+  roll();
+  diceElement.setAttribute("src", `./images/dice-${num}.svg`);
+  sumElement.innerText = sum;
+  historyElement.innerText = gameHistory.join(", ");
+}
+```
+
+- 위의 코드처럼 작성하게 된다면 번거롭고, 실수로 작성하면 일부만 업데이트 되서, 버그가 발생하기도 쉽다. 
+- 리액트는 그래서 쉽고 간단한 방법을 사용하는데, 새로 rendering을 해버린다.
+- 예시코드(변경된 코드)
+
+```react
+const handleRollClick = () => {
+  const nextNum = Math.ceil(Math.random() * 6);
+  setNum(nextNum);
+  setSum(sum + nextNum);
+  setGameHistory([...gameHistory, nextNum])
+}
+```
+
+- 위의 코드처럼 직접 요소가 변경되는 것이 아니라, state값이 변경되면서 함수를 실행하면서 react가 새롭게 적용된 element를 return한다.
+
+- 여기서 의문점 아무 변화 없는 요소도 rendering되는 거 아닌가?
+  - **React는 Virtual Dom(가상돔)이라는 것을 활용한다.**
+    - 기본적으로 HTML 요소들은 DOM 트리라고 하는 자료구조로 저장되어 있다.
+    - React 내부에서는 어떤 element가 변경되면 실제 DOM에 바로 반영하는 것이 아니라 가상돔에 먼저 적용하고, 변경 전의 가상돔과 변경 후의 가상돔을 비교한다.
+    - 실제로 바뀐 부분만 찾아내고, 각각의 해당하는 실제 DOM 노드를 변경한다.
+  - 가상돔의 장점
+    - 개발자가 직접 DOM 노드를 신경써야 할 이유가 없어서 **단순하고 깔끔한 코드를 작성할 수 있다. **
+      - 무슨 데이터를 어떻게 보여줘야 하는지만 신경쓰면 된다.
+    - React가 변경사항을 적당히 나눠서 브라우저에 전달한다. 그래서 **변경사항들을 효율적으로 처리가능하다.**
+
+
+
+### 인라인 스타일
+
+- html 속성처럼 React에서도 인라인 스타일은 `style` 속성을 지정하면 된다.
+- 그러나 html 속성과 다르게 React에서는 문자열이 아닌 객체로 style 속성 값을 지정할 수 있다.
+
+- 예시
+
+```react
+const style = {
+  backgroundColor: "pink",
+}
+
+function Button({ color, children, onClick }) {
+  return (
+    <button style={style} onClick={onClick}>
+      {children}
+    </button>
+  );
+}
+
+export default Button;
+```
+
+- React에서는 CSS 속성은 **camel case로 적어줘야 한다. **
+
+- 예시
+
+```react
+const style = {
+  backgroundColor: "pink",
+}
+
+function Button({ color, children, onClick }) {
+  return (
+    <button style={{ backgroundColor: "yellow"}} onClick={onClick}>
+      {children}
+    </button>
+  );
+}
+
+export default Button;
+```
+
+- 위처럼 객체 형태의 값을 속성값으로 작성할 수 있다. 그러나 이런 방식은 적용해야 할 style이 많아질 수록 복잡해진다.
+
+- 예시
+
+```react
+//Button.js
+const baseButtonStyle = {
+  padding: '14px 27px',
+  outline: 'none',
+  cursor: 'pointer',
+  borderRadius: '9999px',
+  fontSize: '17px',
+};
+
+const blueButtonStyle = {
+  ...baseButtonStyle,
+  border: 'solid 1px #7090ff',
+  color: '#7090ff',
+  backgroundColor: 'rgba(0, 89, 255, 0.2)',
+};
+
+const redButtonStyle = {
+  ...baseButtonStyle,
+  border: 'solid 1px #ff4664',
+  color: '#ff4664',
+  backgroundColor: 'rgba(255, 78, 78, 0.2)',
+};
+
+function Button({ color, children, onClick }) {
+  const style = color === 'red' ? redButtonStyle : blueButtonStyle;
+  return (
+    <button style={style} onClick={onClick}>
+      {children}
+    </button>
+  );
+}
+
+export default Button;
+
+
+// App.js
+function App() {
+
+  return (
+    <div>
+      <Button color="blue" onClick={handleRollClick}>던지기</Button>
+      <Button color="red" onClick={handleClearClick}>처음부터</Button>
+    </div>
+  );
+}
+
+```
+
+- 위의 코드처럼 공통 css 요소는 따로 style로 만들어 주고 차이점이 있는 부분은 추가로 만들고 spread문법을 사용해서 펼쳐줘서 서로 다르게 적용되어야 하는 style만 각 객체에 따로 추가해준 것이다.
+
+- 이미지 사용
+  - import로 가져온 값을 template literal 문자열로 넣어준다.
+
+```react
+import backgroundImg from "./assets/purple.svg";
+
+const style = {
+  backgrounImage = `url('${backgroundImg}')`
+}
+```
+
+
+
+
+
+### CSS 클래스네임
+
+- CSS 속성을 담은 파일을 외부 파일로 만들고 나서 import해서 사용한다. 
+  - import하고 바로 파일 경로를 적어준다.
+
+```react
+// index.css
+body {
+  background-color: "blue";
+  color: "#fff";
+}
+
+// index.js
+import "./index.css"
+```
+
+
+
+- 예시 코드
+
+```css
+/*Button.css*/
+.Button {
+  padding: 14px 27px;
+  border-radius: 9999px;
+  outline: none;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.Button.blue {
+  border: solid 1px #7090ff;
+  color: #7090ff;
+  background-color: rgba(0, 89, 255, 0.2);
+}
+
+.Button.red {
+  border: solid 1px #ff4664;
+  color: #ff4664;
+  background-color: rgba(255, 78, 78, 0.2);
+}
+```
+
+```react
+// Button.js
+import './Button.css';
+
+function Button({ className = '', color = 'blue', children, onClick }) {
+  const classNames = `Button ${color} ${className}`;
+  return (
+    <button className={classNames} onClick={onClick}>
+      {children}
+    </button>
+  );
+}
+
+export default Button;
+```
+
+- 위에 Button 뒤에 공백이 없으면 하나의 className으로 인식한다.
+
+
+
+- 예시
+
+```css
+.App .App-button {
+  margin: 6px;
+}
+```
+
+
+
+```react
+import { useState } from 'react';
+import Board from './Board';
+import Button from './Button';
+import './App.css';
+
+function App() {
+
+  return (
+    <div className="App">
+      <Button className="App-button" color="blue">
+        던지기
+      </Button>
+      <Button className="App-button" color="red">
+        처음부터
+      </Button>
+    </div>
+  );
+}
+
+export default App;
+```
+
+- 요소에 외부적으로 영향을 끼치는 스타일 속성은 App.js에서 하는 것이 좋다. 
+  - button 내부의 스타일은 button 내부에서 작성하는 게 좋지만 margin과 같이 스타일 외부에 영향을 끼치는 경우에 요소 주변에 어떤 요소들이 배치되면 좋을지 생각해야 한다.
