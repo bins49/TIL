@@ -1357,3 +1357,165 @@ function solution(common) {
 }
 ```
 
+
+
+#### 분수의 덧셈
+
+- 두 수의 최대 공약수를 찾고 최소 공배수를 찾는다.
+- 그리고 나눌 수 없을 때까지 분모와 분자를 나눠야 해서 처음 계산한 수의 최대 공약수를 구해서 나눠야 한다.
+- 초기코드
+
+```js
+function calc(x, y) {
+    while (x % y != 0) {
+        let r = x % y;
+        x =
+          
+          y;
+        y = r;
+    }
+    return y;
+}
+
+function solution(numer1, denom1, numer2, denom2) {
+    let answer = [];
+    // 최소공배수를 찾고 분모와 분자에 최소공부가 되려면 얼마를 곱해야 하는지 찾아야 한다.
+    // 최소공배수는 두수 곱의 / 최대공약수    
+    let x = Math.max(denom1, denom2);
+    let y = Math.min(denom1, denom2);
+    
+    // 최대공약수
+    let gcd = calc(x, y);
+
+    // 최소공배수
+    let lcd = denom1 * denom2 / gcd;
+
+    let a = lcd / denom1;
+    let b = lcd / denom2;
+    
+    let numer = (numer1 * a) + (numer2 * b);
+    let denom = lcd;
+    
+    let gcd2 = calc(numer, denom);
+    
+    return [numer / gcd2, denom / gcd2];
+      
+}
+```
+
+- 변경된 코드
+  - 유클리드 호제법을 이용한 재귀함수를 구현하고, 불필요한 코드를 제거했다.
+  - 특히 최대공약수를 구할 때는 최솟값, 최댓값을 찾지 않아도 된다.
+
+```js
+function gcd(x, y) {
+  return y == "0" ? x : gcd(y, x % y)
+}
+
+function solution(numer1, denom1, numer2, denom2) {
+  // 최소공배수 공식
+  let lcd = denom1 * denom2 / gcd(denom1, denom2);
+  // 분모 계산
+  let num = numer1 * (lcd / denom1) + numer2 * (lcd / denom2);
+  
+  // 분모, 분자의 최대공약수 구하기
+  let gcd2 = gcd(num, lcd);
+  
+  return [num / gcd2, lcd / gcd2]
+}
+```
+
+
+
+#### 정수형 나선형으로 배치하기
+
+- 양의 정수 n이 매개변수로 주어진다. n * n 배열에 1부터 n^2까지 정수를 `[0][0]` 부터 시계방향 나선형으로 배치한 이차원 배열을 return해라.
+
+- 처음 코드
+
+```react
+function solution(n) {
+  let arr = Array.from(Array(n), () => Array(n).fill(0));
+  
+  // 방향 설정
+  let top = 0;
+  let bottom = n - 1;
+  let left = 0;
+  let right = n - 1;
+  // 숫자 카운트
+  let num = 1;
+  
+  // n의 제곱까지 숫자가 돌 때
+  while (num <= n*n) {
+    
+    // 왼쪽에서 오른쪽으로 
+    for (let i = left; i <= right; i++) {
+      arr[top][i] = num++;
+    }
+    // 위 경계 줄이기
+    top++;
+    
+    // 위에서 아래로
+    for (let i = top; i <= bottom; i++) {
+      arr[i][right] = num++;
+    }
+    //우측 경계 줄이기
+    right--;
+    
+    // 오른쪽에서 왼쪽으로
+    for (let i = right; i >= left; i--) {
+      arr[bottom][i] = num++;
+    }
+    // 아래 경계 줄이기
+    bottom--;
+    
+    // 아래에서 위로
+    for (let i = bottom; i >= top; i--) {
+      arr[i][left] = num++;
+    }
+    // 좌측 경계 줄이기
+    left++;
+  }
+  return arr;
+ 
+}
+```
+
+- 좋은 코드
+  - 사방탐색을 활용하여 경계값을 벗어나지 않는다면 값을 계속 넣는 방식
+
+```react
+function solution(n) {
+    // 네 가지 방향 탐색
+    const move = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+    // n * n 배열
+    const arr = Array.from(Array(n), () => Array(n).fill(0));
+    
+    // 초기 변수값
+    let x = 0, y = 0, dir = 0, num = 1;
+    
+    while (num <= n * n) {
+        // 처음 시작값 넣어준다.
+        arr[x][y] = num;
+        let nextX = x + move[dir][0];
+        let nextY = y + move[dir][1];
+        
+        // 범위를 벗어나거나 이미 방문한 곳이면
+        if (nextX >= n || nextX < 0 || nextY >= n || nextY < 0 || arr[nextX][nextY] != 0) {
+            // 다음 방향으로 이동한다.
+            dir = (dir + 1) % 4;
+            // 바뀐 방향으로 x,y가 이동한다.
+            nextX = x + move[dir][0];
+            nextY = y + move[dir][1];
+        }
+        
+        // 다음 x,y를 지정해준다.
+        x = nextX;
+        y = nextY;
+        // 숫자를 늘려준다.
+        num++;
+    }
+    return arr;
+}
+```
+
