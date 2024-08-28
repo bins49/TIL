@@ -51,3 +51,26 @@
 - Staging area에서 파일 제거하려면  `git reset 파일 이름`을 하면 된다.
   - 변경된 새 모습은 그대로 working directory에 남아있다.
 - Git 의미나 사용법을 좀더 자세히 알고 싶다면 `git help`를 치면 된다. 
+
+
+
+#### Github
+
+- github에서 만든 repository를 **원격 repository 혹은 remote repository**라고 부른다.
+  - 내 컴퓨터의 레포지토리를 **local repository**라고 부른다.
+
+- git push -u origin master
+  - local repository의 master branch 내용을 remote repository의 master branch에 보내라는 뜻이다.
+  - local repository의 내용을 remote repository에 반영하는 것을
+
+- git pull은 **remote repository의 내용을 local repository에 반영하는 것을 말한다. **
+
+- remote repository를 만드는 이유
+  - 안전성
+    - local 컴퓨터에 문제가 생겨도 다른 컴퓨터에서 remote repository를 가져올 수 있다.
+  - 협업 가능
+    - A개발자가 새로운 커밋을 한다면 내가 pull을 활용하고 내가 수정한 내용을 push해서 상대방이 pull을 통해서 받는다. 
+
+- 아무나 나의 repository에 push하면 안 된다.
+  - settings => Manage access => Invite a collaborator 이 과정을 통해서 함께 repository를 수정할 사람을 초대한다. 
+  - 수정할 사람이 Accept invitation을 하게 되면 push를 할 수 있다.
