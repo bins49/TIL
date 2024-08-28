@@ -802,3 +802,21 @@ function Button({ isPending, color, size, invert, children }) {
 export default Button;
 ```
 
+
+
+
+
+#### 빌드하기
+
+- **우리가 작성한 파일을 브라우저가 해석할 수 있고 웹 서버가 사용하기 좋도록 만드는 과정**
+- `npm run build`
+  - 개발된 프로젝트 빌드하기
+- `npx serve build`
+  - 빌드한 것 로컬에서 실행하기
+  - npm 저장소에서  serve라는 프로그램을 다운 받고 build라는 폴더에서 서버를 실행한다.
+
+- Babel은 JS의 대표적인 transfiler이다. 
+  - web browser에서는 JSX문법을 인식할 수 없기 때문에 React를 JS로 transfiling을 해야한다.
+- bundling 과정을 통해 작성한 파일의 용량을 줄이고 web browser가 훨씬 빠르게 다운받을 수 있다.
+  - 묶은 파일을  bundle이라고한다.
+
