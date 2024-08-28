@@ -99,3 +99,100 @@ function sayHi() {
 typeof sayHi; // function
 ```
 
+
+
+#### 불린인 듯 불린 아닌 불린같은 값
+
+- Falsy값
+  - false, null, undefined, NaN, 0
+- Truthy
+  - 빈 배열, 빈 객체 및 나머지 값들 
+
+
+
+#### AND와 OR의 연산 방식
+
+- AND
+  - 왼쪽이 true일 때 오른쪽 값을  return 한다.
+  - 왼쪽이 false일 때 왼쪽 값을 return 한다.
+
+```js
+console.log(true && true); // true
+console.log(true && false); // false
+console.log(false && true); // false
+console.log(false && false); // false
+console.log("Code" && "JavaScript")// 왼쪽에 truthy하기 때문에 오른쪽 JS가 출력
+```
+
+- OR
+
+```js
+// OR
+console.log(true || true); // true
+console.log(true || false); // true
+console.log(false || true); // true
+console.log(false || false); // false
+```
+
+- 예시
+
+```js
+console.log(null & undefined); // null
+console.log(0 || true); // true
+console.log("0" && NaN); // NaN
+console.log({} || 123 ); // {}
+```
+
+- 응용
+
+```js
+function print(value) {
+     const message = value || 'Code';
+
+     console.log(message);
+}
+// 함수 호출했을 때 빈 값이면 코드를 출력
+print();
+// 값이 존재하면 value를 출력한다.
+print('JavaScript');
+```
+
+
+
+- **AND와 OR 연산자 사이에서는 AND 연산자의 우선순위가 더 높다**
+
+```js
+console.log(true || false && false); // true
+console.log((true || false) && false); // false
+```
+
+
+
+- null 연산자(`??`)의 경우 **연산자 왼편의 값이 null 이나 undefined라면 연산자의 오른편이 값이 되고 왼편의 값이 null, undefined가 아니면 연산자 왼편의 값이 리턴된다.**
+
+```js
+const example1 = null ?? "I";
+const example2 = undefined ?? "love";
+const example3 = "You" ?? "JavaScript";
+
+console.log(exmample1, example2, example3) // I love You
+```
+
+- null연산자랑 OR연산자는  약간의 차이가 있다. null은 undefined와 null이면 오른쪽 값이 되는 것이고, OR연산자는 falsy값만 확인하기 때문에 결괏값이 다르다.
+
+```js
+const title1 = false || 'code';
+const title2 = false ?? 'code';
+
+console.log(title1); // code
+console.log(title2); // false
+
+const width1 = 0 || 150;
+const width2 = 0 ?? 150;
+
+console.log(width1); // 150
+console.log(width2); // 0
+```
+
+
+
