@@ -678,8 +678,6 @@ export default Button;
 
 - 위에 Button 뒤에 공백이 없으면 하나의 className으로 인식한다.
 
-
-
 - 예시
 
 ```css
@@ -687,8 +685,6 @@ export default Button;
   margin: 6px;
 }
 ```
-
-
 
 ```react
 import { useState } from 'react';
@@ -715,3 +711,94 @@ export default App;
 
 - 요소에 외부적으로 영향을 끼치는 스타일 속성은 App.js에서 하는 것이 좋다. 
   - button 내부의 스타일은 button 내부에서 작성하는 게 좋지만 margin과 같이 스타일 외부에 영향을 끼치는 경우에 요소 주변에 어떤 요소들이 배치되면 좋을지 생각해야 한다.
+
+
+
+- CSS 클래스를 사용하는 쪽에서 className을 집어넣는 식으로 하면 컴포넌트의 사용성이 좋아진다.
+
+- 예시
+
+```react
+//App.js
+import HandIcon from './HandIcon';
+import "./HandButton.css"
+
+function HandButton({ value, onClick }) {
+  const handleClick = () => onClick(value);
+  return (
+    <button onClick={handleClick} className="HandButton">
+      <HandIcon value={value} className="HandButton-icon"/>
+    </button>
+  );
+}
+
+export default HandButton;
+```
+
+```react
+import rockImg from './assets/rock.svg';
+import scissorImg from './assets/scissor.svg';
+import paperImg from './assets/paper.svg';
+
+const IMAGES = {
+  rock: rockImg,
+  scissor: scissorImg,
+  paper: paperImg,
+};
+
+// className prop을 추가했다.
+function HandIcon({ value, className }) {
+  const src = IMAGES[value];
+  return <img src={src} alt={value} className="className"/>;
+}
+
+export default HandIcon;
+```
+
+
+
+#### 편리하게 클래스네임을 쓰는 방법
+
+- 일반 배열을 사용한 예
+
+```react
+function Button({ isPending, color, size, invert, children }) {
+  const classNames = [
+    'Button',
+    isPending ? 'pending' : '',
+    color,
+    size,
+    invert ? 'invert' : '',
+  ].join(' ');
+  return <button className={classNames}>{children}</button>;
+}
+
+export default Button;
+```
+
+- 위의 코드처럼 작성하면 지저분하고 매번 반복되는 코드를 작성한다는 번거로움이 존재
+- 그래서 `classnames`라는 라이브러리를 사용한다.
+
+- classNames를 사용한 예
+
+```react
+import classNames from 'classnames';
+
+function Button({ isPending, color, size, invert, children }) {
+  return (
+    <button
+      className={classNames(
+        'Button',
+        isPending && 'pending',
+        color,
+        size,
+        invert && 'invert',
+      )}>
+     { children }
+   </button >
+  );
+}
+
+export default Button;
+```
+
