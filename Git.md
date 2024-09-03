@@ -59,11 +59,11 @@
 - github에서 만든 repository를 **원격 repository 혹은 remote repository**라고 부른다.
   - 내 컴퓨터의 레포지토리를 **local repository**라고 부른다.
 
-- git push -u origin master
+- `git push -u origin master`
   - local repository의 master branch 내용을 remote repository의 master branch에 보내라는 뜻이다.
   - local repository의 내용을 remote repository에 반영하는 것을
 
-- git pull은 **remote repository의 내용을 local repository에 반영하는 것을 말한다. **
+- `git pull`은 **remote repository의 내용을 local repository에 반영하는 것을 말한다. **
 
 - remote repository를 만드는 이유
   - 안전성
@@ -74,3 +74,31 @@
 - 아무나 나의 repository에 push하면 안 된다.
   - settings => Manage access => Invite a collaborator 이 과정을 통해서 함께 repository를 수정할 사람을 초대한다. 
   - 수정할 사람이 Accept invitation을 하게 되면 push를 할 수 있다.
+
+- `git clone 주소`을 하면 repository를 복제할 수 있다.
+
+- `git log`를 치면 commit history를 볼 수 있다.
+  - history를 깔끔하게 보고 싶다면 `git log --pretty=oneline`
+- commit한 내역을 자세히 보고 싶으면 `git show commitid 4글자 `
+
+- -m 옵션 없이 git commit만으로 텍스트 에디터에 커밋 메시지 남기기
+  - 터미널에서 git commit을 하고 `i`를 누르고 메시지 및 상세내용을 입력한다.
+  - `ESC`누르고 `:wq`를 하면 된다.
+  - 이렇게 하면 복잡하고 긴 커밋 메시지를 쉽게 남길 수 있다.
+
+- 최신 커밋 수정하기 
+  - `git commit --amend`
+- 커밋 메시지 작성 가이드 라인
+  - 커밋 메시지의 제목 뒤에 온점을 붙이지 마라
+  - 커밋 메시지의 제목의 첫 번째 알파벳은 대문자로 작성해라
+  - 커밋 메시지의 제목은 명령조로 작성해라.
+    - `Fix it(o)`, `Fixed it(x)`, `Fixes it(x)`
+  - 커밋의 상세 내용에는 이런 걸 적으면 좋다.
+    - 왜 커밋을 했는지
+    - 어떤 문제가 있었고
+    - 적용한 해결책이 어떤 효과를 가지는지
+  - 다른 사람들이 자신의 코드를 바로 이해할 수 있다고 가정하지 말고 최대한 친절하게 작성하자.
+  - **하나의 커밋에는 하나의 수정사항, 하나의 이슈를 해결한 내용만 남기자.**
+  - 현재 프로젝트 directory 상태가 그 내부의 전체 코드를 실행했을 때 에러가 발생하지 않는 상태인 경우에만 커밋을 하도록 하자. 나중에 동료 개발자가 특정 커밋의 코드로 실행했을 때 에러가 발생한다면 혼란을 줄 수 있다.
+- git 옵션이 길 경우 커맨드 전체에 별명을 붙여서 그 별명을 사용할 수 있도록 하는 기능이 있다. aliasing이라고 한다.
+  - `git config alias.history 'log --pretty=oneline'`
