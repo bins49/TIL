@@ -196,3 +196,147 @@ console.log(width2); // 0
 
 
 
+#### 변수와 스코프
+
+- ES2015이전에는 `var`변수를 사용했었고, 이후에는 `let`, `const`를 주로 사용한다.
+- 호이스팅
+  - **선언이 나중에 되었지만 선언이 위로 올라간듯한 현상**
+  - **호이스팅은 선언 부분만 위로 끌려 올려지기 떄문에 변수 선언과 동시에 값을 할당하더라 할당된 자체는 그 이후에 접근이 가능하다.** 
+
+```js
+console.log(title); // undefined
+var title = "title";
+```
+
+- `let`이나 `const`는 변수 선언 이전에 접근할 수 없다.
+
+```js
+// uncaught ReferenceError: Cannot access "title" before initialization
+console.log(title);
+let title = "title";
+```
+
+- `var`는 중복 선언이 가능하다.
+  - 실수로 이미 선언한 변수명을 중복으로 선언해 버리면 의도하지 않은 값은 사라지게 되는 문제가 발생한다.
+
+```js
+let title = 'title';
+console.log(title);
+
+let title = 'JavaScript';
+console.log(title);
+```
+
+- **`let`과 `const`는 중복 선언이 불가능하다.**
+
+```js
+// Uncaught SyntaxError: Identifier "title" has already been declared
+let title = 'tlte';
+console.log(title);
+
+let title = 'JavaScript';
+console.log(title);
+```
+
+- `var` 변수의 스코프가 함수 단위로만 구분이 된다.
+  - 전역 변수의 경우 함수 안에서나 함수 밖에서나 자유롭게 사용이 가능하다.
+
+```js
+var x = 3;  // Global Variable
+
+function myFunc() {
+   var y = 4;  // Local Variable
+   console.log(`x in myFunc: ${x}`);
+   console.log(`y in myFunc: ${y}`);
+}
+
+myFunc();
+// 3
+console.log(x);
+// RefenceError: y is not defined
+console.log(y);
+```
+
+- `var`는 함수 단위로만 구분되기 때문에, 조건문이나 반복문을 사용해도 모두 전역 변수로 평가된다.
+  - 특정 반복문에서 사용되는 고유 변수의 경우 지역변수로 만들 수가 없던 문제가 있었다.
+
+```js
+var x = 3;
+
+if (x < 4) {
+	 var y = 3;
+}
+
+for (var i = 0; i < 5; i++) {
+		console.log(i);
+}
+// x: 3
+console.log('x:', x);
+// y: 3
+console.log('y:', y);
+// i: 5
+console.log('i:', i);
+```
+
+- `let`, `const`의 경우 중괄호가 사용되는 부분을 기준으로 변수의 유효범위를 구분하는데, **중괄호를 코드 블럭이라고 부른다.**
+  - 코드 블럭 밖에서는 에러가 출력된다. 
+
+```js
+let x = 3;
+
+if (x < 4) {
+    let y = 3;
+}
+
+for (let i = 0; i < 5; i++) {
+  console.log(i);
+}
+
+console.log('x:', x);
+// y is not defined
+console.log('y:', y);
+console.log('i:', i);
+```
+
+- 결론 
+  - `var`는 함수 스코프 
+  - `let, const`는 블럭 스코프
+
+
+
+#### 함수를 만드는 방법
+
+- 함수를 만드는 방법은 함수 선언과 함수 표현식으로 나눠진다.
+- 함수선언 예시
+
+```js
+function 함수이름(파라미터) {
+  동작
+  return 리턴값;
+}
+```
+
+- 함수 표현식 예시
+  - 함수 선언을 값처럼 활용하는 방식
+
+```js
+const printCodeit = function () {
+  console.log('Coodeit');
+};
+
+printCodeit();
+
+myBtn.addEventListener('click', function() {
+  console.log('button is clicked!');
+});
+```
+
+
+
+- 함수 선언과 함수 표현식의 차이점
+  - 호이스팅
+    - 함수 선언의 경우 함수 선언 전에 함수를 호출하면 호이스팅에 의해서 선언이 위로 끌려지기 때문에 코드가 잘 동작된다.
+    - 함수 표현힉의 경우 변수 특성상 이전에 접근할 수 없기 때문에, Reference Error가 발생한다.
+  - 스코프
+    - 함수 선언은 변수의 var 키워드처럼 함수 스코프를 가진다.
+    - 함수 표현식의 경우에는 할당된 변수에 따라 스코프가 결정된다. 
