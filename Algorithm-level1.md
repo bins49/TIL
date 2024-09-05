@@ -220,3 +220,125 @@ function solution(n) {
 }
 ```
 
+
+
+
+
+#### 크기가 작은 부분문자열
+
+- 숫자로 이루어진 문자열 t와 p가 주어졌을 때, t에서 p의 길이와 같은 부분문자열 중에서 이 부분문자열이 나타내는 수가 p가 나타내는 수보다 작거나 같은 것이 나오는 횟수를 return해라
+- 정답 코드
+
+```js
+function solution(t, p) {
+    let answer = 0;
+    // p크기만큼 슬라이스해야 한다. 
+    for (let i = 0; i <= t.length - p.length; i++) {
+        let a = t.slice(i, i+p.length);
+        if (a <= p) answer++;
+    }
+    return answer;
+}
+```
+
+
+
+#### 이상한 문자 만들기
+
+- 문자열 s는 한 개 이상의 단어로 구성되어 있다. 각 단어의 짝수번째 알파벳은 대문자로, 홀수번째 알파벳은 소문자로 바꾼 문자열을 리턴해라
+- 문자열 전체의 짝/홀수 인덱스가 아니라, 단어(공백을 기준)별로 짝/홀수 인덱스를 판단해야한다.
+
+- 내 코드
+
+```js
+function solution(s) {
+    let str = "";
+    // 공백 문자열 기준으로 split
+    let string = s.split(" ");
+    for (let i = 0; i < string.length; i++) {
+      // 처음부터 공백이 들어가면 정답이 나오지 않기 때문에 다음 순서부터 넣는다.
+        if (i !== 0) str+= " ";
+        for (let j = 0; j < string[i].length; j++) {
+          // 짝수면 대문자
+            if (j % 2 == 0) {
+                str += string[i][j].toUpperCase();
+              // 홀수면 소문자
+            } else {
+                str += string[i][j].toLowerCase();
+            }
+        }
+    }
+    return str;
+}
+```
+
+- 수정된 코드
+  - `map` 메서드를 활용해서 코드를 더 줄일 수 있다.
+
+```js
+function solution(s) {
+  return s
+  		.split(" ")
+      .map(word =>
+          word)
+  					.split("")
+            .map((char, idx) => 
+                   idx % 2 == 0 ? char.toUpperCase() : char.toLowerCase()
+            )
+    				.join("")
+  ).join(" ")
+}
+```
+
+
+
+#### 삼총사
+
+- 학교 학생 3명의 정수 번호를 더했을 때 0이 되면 삼총사라고 한다. 학생들 중 삼총사를 만들 수 있는 방법의 수를 return해라
+- 충분히 이 문제는 for문을 활용해서 해결할 수 있다. 하지만 재귀 함수 방식을 이용해서 해결했다.
+- 내 코드
+  - 백트래킹 방법이 시간복잡도에서도 좋은 거 같다.
+    - 함수 조건 불만족시 이전 호출 상태로 돌아간다.
+
+```js
+function solution(number) {
+    let cnt = 0;
+    
+    function findCombinations(start, num, sum) {
+       // 3개의 숫자를 골랐으면
+        if (num == 3) {
+           // 그 중에서 합계가 0이면 count하고 종료한다.
+            if (sum == 0) {
+                cnt++;
+            }
+            return;
+        }
+        // 시작지점에서 number의 길이만큼 돈다.
+        for (let i = start; i < number.length; i++) {
+           // 재귀 방식으로 조건에 만족할 때까지 돈다.
+            findCombinations(i+1, num+1, sum+number[i]);
+        }
+    }
+    findCombinations(0, 0, 0);
+    return cnt;
+}
+```
+
+- for문을 활용한 코드
+
+```js
+function solution(number) {
+  let answer = 0;
+  
+  for (let i = 0; i < number.length - 2; i++) {
+    for (let j = i+1; j < number.length -1; j++) {
+      for (let k = j+1; k < number.length; k++) {
+        const sum = number[i] + number[j] + number[k];
+        if (sum == 0) answer++;
+      }
+    }
+  }
+  return answer;
+}
+```
+
