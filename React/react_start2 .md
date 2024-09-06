@@ -549,3 +549,86 @@ const handleAddClick = async () => {
 }
 ```
 
+
+
+#### 네트워크 로딩 처리하기
+
+- 데이터를 다 불러오기 전에 더 보기 버튼을 누르는 것을 방지해야 한다. 그렇지 않으면 중복된 데이터를 불러올 수도 있다.
+
+- 코드
+
+```react
+function App() {
+  const [isLoading, setIsLoading] = useState(false);
+  
+  let result;
+  // 더보기 버튼을 누르면 데이터를 가져오니까 true해주고
+  try {
+    setIsLoading(true);
+    result = await getResult(options);
+    // 오류가 나면 error를 출력하고 return
+  } catch (error) {
+    console.log(error)
+    return;
+  } finally {
+    // 오류가 나서 return하더라도 네트워크 request가 끝나면 항상 false처리를 하게 된다.
+    setIsLoading(false);
+  }
+  
+  return (
+  	<div>
+    	<button disabled={isLoading}>더 보기</button>
+    </div>
+  )
+}
+```
+
+
+
+#### 네트워크 에러 처리하기
+
+- 네트워크 에러가 발생할 시에 state를 활용해서 에러를 처리하는 작업을 진행했다.
+
+- 코드
+
+```react
+//App.js
+function App() {
+  const [isLoading, setIsLoading] = useState(false);
+  // 초깃값은 null로 설정한다. 
+  const [loadingError, setLoadingError] = useState(null);
+  
+  const handleLoad = async (options) => {
+    let result;
+    try {
+      setIsLoading(true);
+      result = await getReviews(options);
+    } catch (error) {
+      console.error(error);
+      return;
+    } finally {
+      setIsLoading(false);
+    }
+  
+  //optional chaining을 활용해서 loading error가 있을때만 message property를 참조하게 된다. 
+  return (
+  	<div>
+    	<button disabled={isLoading}>더 보기</button>
+      {loadingError?.message && <span>{loadingError.message}</span>}
+    </div>
+  )
+}
+```
+
+```react
+// api.js
+// response의 ok라는 메소드를 통해 오류가 나는 경우에는 Error 던진다. 
+if (!response.ok) {
+  throw new Error("리뷰를 불러오는 데 실패했습니다.")
+}
+```
+
+
+
+
+
