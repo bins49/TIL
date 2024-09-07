@@ -342,3 +342,46 @@ function solution(number) {
 }
 ```
 
+
+
+#### 가장 가까운 같은 글자
+
+- 문자열 s가 주어졌을 때, s의 각 위치마다 자신보다 앞에 나왔으면서, 자신과 가장 가까운 곳에 있는 같은 글자가 어디에 있는지 찾는 문제
+
+- 내 코드
+
+```js
+function solution(s) {
+    let temp = [], answer = [];
+    let alphabet = s.split("");
+    for (let alpha of alphabet) {
+        // 현재 순회하는 알파벳의 index가 존재하는지 파악한다.  
+        let current = temp.indexOf(alpha)
+        if (current < 0) {
+            answer.push(-1);
+        } else {
+            // 앞에 있는 글자의 경우 현재 배열의 길이 - 자신보다 앞에 있는 원소의 인덱스
+            answer.push(temp.length - temp.lastIndexOf(alpha))
+        }
+        temp.push(alpha);
+    }
+    return answer;
+}
+```
+
+- 다른 사람의 코드
+  - `map` 메서드를 순회하면서 객체에 삼항연산자를 통해서 값이 없으면 -1 아니면 현재 인덱스 - 존재하는 알파벳 인덱스 처리하면 된다.
+  - 참고로 destructuring array를 사용하면 문자열을 배열로 변환시켜 준다. 
+
+```js
+function solution(s) {
+  let hash = {};
+  
+  return [...s].map((v, i) => {
+    let result = hash[v] !== undefined ? i - hash[v] : -1;
+    hash[v] = i;
+    return result;
+  })
+}
+```
+
