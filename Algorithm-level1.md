@@ -385,3 +385,190 @@ function solution(s) {
 }
 ```
 
+
+
+#### 숫자 문자열과 영단어(카카오 2021 채용연계형 인턴십 문제)
+
+- 주어진 문자열에서 문자를 해당하는 숫자로 바꾸는 문제
+
+- 내 코드
+
+```js
+function solution(s) {
+    let result = "";
+    let string = { "zero" : "0", "one" : "1", "two" : "2", "three" : "3", "four" : "4", "five" : "5", "six" : "6", "seven" : "7", "eight" : "8", "nine" : "9"};
+    let temp = ""
+    for (let str of s.split("")) {
+       // 숫자가 아닌경우 문자열에 계속 문자를 더한다.
+        if (/\D/.test(str)) {
+            temp += str;
+          // 만약에 객체에서 해당 값을 찾게 되면 결괏값에 해당 value를 더해준다.
+            if (string[temp]) {
+                result += string[temp];
+                temp = "";
+            }
+          // 숫자인 경우 그냥 더한다. 
+        } else {
+            result += str;
+        }
+    }
+    return Number(result)
+}
+```
+
+- 다른 사람 코드
+
+```js
+function solution(s) {
+   let numbers = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+   let answer = s;
+   for (let i = 0; i < numbers.length; i++) {
+     // 숫자를 기준으로 split한다. 
+     let arr = answer.split(numbers[i]);
+     // i를 join한다. 문자열을 붙인다. 
+     answer = arr.join(i);
+   }
+}
+```
+
+
+
+
+
+#### 정렬
+
+- 배열의 i번째 숫자부터 j번째 숫자까지 자르고 정렬했을 때, K번째 있는 수를 구해라.
+
+- 내 코드
+
+```js
+function solution(array, commands) {
+    let answer = [];
+    for (let command of commands) {
+       // destructuring array 활용
+        let [start, end, num] = command;
+       // slice 한 후에 정렬
+        let subArr = array.slice(start-1, end).sort((a, b) => a - b);
+        answer.push(subArr[num-1]);
+    }
+    return answer;
+}
+```
+
+
+
+#### 두 개 뽑아서 더하기
+
+-  numbers에서 서로 다른 인덱스에 있는 두 개의 수를 뽑아 더해서 만들 수 있는 모든 수를 배열에 오름차순으로 담아 return 하도록 solution 함수를 완성해라
+
+- 내 코드
+
+```js
+function solution(numbers) {
+    let answer = new Set();
+    for (let i = 0; i < numbers.length-1; i++) {
+        for (let j = i+1; j < numbers.length; j++) {
+            answer.add(numbers[i] + numbers[j]);
+        }
+    }
+   // Set은 sort 메서드가 없으니 배열로 다시 바꾸는 작업을 진행
+    return [...answer].sort((a, b) => a - b);
+}
+```
+
+
+
+
+
+#### 푸드 파이트 대회
+
+- 1대 1로 경기를 진행하면서 균등하게 음식을 먹어야 한다. 음식이 1개이면 버려야 한다. 대회를 위한 음식의 배치를 나타내는 문자열을 return해라
+- 내 코드
+
+```js
+function solution(food) {
+  // food[1]부터 순회하면서 음식의 개수를 / 2로 나눈 것을 내림차순하고 그것만큼 문자열을 반복해라
+    let one = food.map((e, i) => i > 0 ? i.toString().repeat(Math.floor(e / 2)) : "").join("");
+  // 상대방의 경우 reverse를 하면 된다. 
+    return one + "0" + [...one].reverse().join("");
+}
+```
+
+
+
+
+
+#### 문자열 내 마음대로 정렬하기
+
+- 문자열로 구성된 리스트 strings가 주어졌을 때 인덱스 n번째 글자를 기준으로 오름차순 정렬한다. 
+
+```js
+function solution(strings, n) {
+    return strings.sort((a, b) => {
+        const chr1 = a.charAt(n);
+        const chr2 = b.charAt(n);
+
+        if (chr1 == chr2) {
+            return (a > b) - (a < b);
+        } else {
+            return (chr1 > chr2) - (chr1 < chr2);
+        }
+    })
+}
+```
+
+
+
+
+
+#### 비밀지도 - 2018 KaKao Blind recruitment
+
+- 원래의 비밀지도를 해독하여 `#`, 공백으로 구성된 문자열 배열로 출력하라.
+- 내 코드 
+  - 불필요한 코드도 많다.
+
+```js
+function solution(n, arr1, arr2) {
+    let answer = [];
+    
+    let arr = Array.from(Array(n), () => Array(n).fill(0));
+     
+    // 1. 각 숫자를 이진수로 변경
+    let one = arr1.map((e) => (n == e.toString(2).length ? e.toString(2) : "0".repeat(n - e.toString(2).length) + e.toString(2)));
+    // 2.
+    let two = arr2.map((e) => (n == e.toString(2).length ? e.toString(2) : "0".repeat(n - e.toString(2).length) + e.toString(2)));
+    
+    
+    for (let i = 0; i < one.length; i++) {
+        let row = ""
+        for (let j = 0; j < one[0].length; j++) {
+            if (one[i][j] == 1 || two[i][j] == 1) {
+                row += "#";
+            } else {
+                row += " ";   
+            }
+        }
+        answer.push(row);
+    }
+    return answer;
+}
+```
+
+- 개선된 코드
+  - 비트연산자를 사용하고 `padStart`메서드와 `replace` 메서드를 사용하면 해결할 수 있다. 
+    - **비트연산자를 활용하면 두 숫자를 비트 단위로 비교해, 두 비트 중 하나라도 1이면 1을 반환한다. **
+
+```js
+function solution(n, arr1, arr2) {
+    let answer = [];
+    
+    return arr1.map((e, i) => 
+                   (e | arr2[i])
+                   .toString(2)
+                   .padStart(n, 0)
+                   .replace(/1/g, "#")
+                   .replace(/0/g, " ")
+                   )
+}
+```
+
