@@ -572,3 +572,152 @@ function solution(n, arr1, arr2) {
 }
 ```
 
+
+
+
+
+#### 명예의 전당(1)
+
+- k일 다음부터 출연 가수의 점수가 기존의 명예의 전당 목록의 k번째 순위의 가수 점수보다 더 높으면, 출연 가수의 점수가 명예의 전당에 오르게 되고 기존의 k번째 순위의 점수는 명예의 전당에서 내려오게 된다. 
+- 내 코드
+  - 문제점
+    - 매번 이렇게 slice를 하면 배열의 크기가 클수록 성능에 영향을 준다. 
+
+```js
+function solution(k, score) {
+    let answer = [];
+    let honor = [];
+    
+    for (let i = 0; i < score.length; i++) {
+        honor.push(score[i]);
+        let rank = honor.sort((a, b) => b - a).slice(0, k);
+        answer.push(Math.min(...honor));
+    }
+    return answer;
+}
+```
+
+- 개선된 코드
+  - 크기가 k 이상이면 정렬된 배열에서 마지막 요소를 `pop` 메서드를 활용해 제거한다.
+
+```js
+function solution(k, score) {
+    let answer = [];
+    let honor = [];
+    
+    for (let i = 0; i < score.length; i++) {
+        honor.push(score[i]);
+        if (honor.length > k) {
+          honor.sort((a, b) => b - a).pop();
+        }
+      	answer.push(Math.min(...honor));
+    }
+    return answer;
+}
+```
+
+
+
+
+
+#### 추억 점수
+
+- 각 인물의 그리움 점수가 `yearning`이란 배열에 담겨져 있다. 각 사진에 찍힌 인물의 이름을 담은 이차원 문자열 배열 photo가 매개변수로 주어질 때, 사진들의 추억 점수를 photo에 주어진 순서대로 배열에 담자. 
+- 초기 코드
+  - 메서드를 활용하지 않고 해결했다.
+
+```js
+function solution(name, yearning, photo) {
+    let answer = [];
+    
+    
+    let score = {};
+    
+    // 객체에 name:yearning
+    for (let i = 0; i < name.length; i++) {
+        score[name[i]] = yearning[i];
+    }
+    
+    // 객체에 name에 있는 이름이면 점수 더해준다.
+    for (let i = 0; i < photo.length; i++) {
+        // 하나의 행이 끝나면 리셋 종료
+        let cnt = 0;
+        for (let j = 0; j < photo[i].length; j++) {
+            if (photo[i][j] in score) {
+                cnt += score[photo[i][j]];
+            }
+        }
+        answer.push(cnt);
+    }
+    return answer;
+}
+```
+
+- 수정된 코드 
+  - `reduce` 메서드와 `map` 메서드를 활용해서 해결했다.
+
+```js
+function solution(name, yearning, photo) {
+  	let score = name.reduce((acc, cur, i) => (acc[cur] = yearning[i], acc), {});
+  
+  	return photo.map((row) => {
+      row.reduce((sum, person) => sum + (score[person] || 0), 0)
+    );
+}
+```
+
+
+
+
+
+#### 카드 뭉치
+
+- 두 개의 배열은 차례대로 조합해서 원하는 배열을 조합할 수 있는지 찾는 문제 
+
+- 내 코드 
+  - goal에 있는 단어가 어떤 배열에 있는지 찾은 다음에 현재 위치의 인덱스를 저장하고 다음 인덱스와의 차이가 1이 이상이면 순차적으로 증가한다고 보기 어려우므로 "No"를 출력한다. 
+
+```js
+function solution(cards1, cards2, goal) {
+    let temp = [];
+    let idx1 = 0, idx2 = 0;
+    for (let i = 0; i < goal.length; i++) {
+        let index1 = cards1.indexOf(goal[i]);
+        let index2 = cards2.indexOf(goal[i]);
+        
+        if (index1 !== -1) {
+            if (index1 - idx1 > 1) return "No";
+            idx1 = index1;
+        } else if (index2 !== -1) {
+            if (index2 - idx2 > 1) return "No"; 
+            idx2 = index2;
+        }
+    }
+    return "Yes";
+}
+```
+
+
+
+#### 콜라 문제
+
+- 콜라 빈 병 a개를 가져다 주면, 마트가 b개의 병을 준다. 내가 가지고 있는 빈 병의 개수가 n이라고 한다면 내가 받을 수 있는 콜라의 병 수를 return 해라
+- 내 코드
+  - 마트에 가서 교환할 수 있는 병의 개수와 현재 교환한 병과 아직 교환하지 못한 병의 개수를 계속 업데이트 한다.  
+
+```js
+function solution(a, b, n) {
+    
+    let answer = 0, empty = 0;
+    
+    while (n >= a) {
+        // 마트에 가서 교환할 수 있는 병
+        empty = Math.floor(n / a) * b;
+        // 현재 교환한 병 + 아직 교환하지 못한 병
+        n = empty + (n % a);
+        answer += empty;
+    }
+    return answer;
+}
+```
+
