@@ -630,5 +630,182 @@ if (!response.ok) {
 
 
 
+#### 검색 기능
 
+- 간단한 검색 기능을 만들어보자.
+
+```react
+function App() {
+  const [search, SetSerach] = useState("");
+  
+  
+  const handleSearch = (e) => {
+    e.preventDefault();
+    SetSearch(e.target['search'.value)
+  };
+  
+  const handleLoadMore = () => {
+    handleLoad({
+      order,
+      cursor,
+      search,
+    })
+  }
+  
+  useEffect(() => {
+    handleLoad({
+      order,
+      search
+    })
+  }, [order, search])
+  return (
+  	<div>
+       <button type="submit">검색</button>
+    </div>
+  )
+}
+```
+
+
+
+#### 입력 폼 만들기
+
+- HTML에서는 사용자가 input을 입력할 때마다 `onInput`이라는 이벤트가 발생했다.
+  - `onChange` 이벤트는 사용자 입력이 끝났을 때 발생하는 이벤트다.
+- 리액트에서 `onChange`이벤트는 JS에서 `onChange`와 다르게 동작한다. 
+  - **`onInput`처럼 사용자가 값을 입력할 때마다 `onChange` 이벤트가 발생한다.**
+
+- 사용 예시
+
+```react
+import {useState} from "react";
+
+function reviewForm() {
+  const [title, setTitle] = useState("");
+  const [rating, setRating] = useState(0);
+  const [content, setContent] = useState("");
+  
+  const handleTitle = (e) => {
+    const nextTitle = e.target.value;
+    setTitle(nextTitle);
+  }
+  
+  const handleRating = (e) => {
+    const nextRating = e.target.value;
+    setRating(rating);
+  }
+  
+  const handlContent = (e) => {
+    const nextContent = e.target.value;
+    setContent(nextTitle);
+  }
+  
+  return (
+  	<form>
+     <input value={title} onChange={handleTitle}></input>
+      <input type="number" value={rating} onChange={handleRating}></input>
+      <input value={content} onChange={handleContent}></input>
+    </form>
+  )
+  
+}
+
+export default ReviewForm;
+```
+
+
+
+#### onSubmit을 써보자
+
+- onSubmit함수를 사용해서 입력값을 전송할 수 있다. 
+- 사용 예시 
+
+```react
+import { useState } from 'react';
+import './ReviewForm.css';
+
+function ReviewForm() {
+  const [title, setTitle] = useState('');
+  const [rating, setRating] = useState(0);
+  const [content, setContent] = useState('');
+
+  const handleTitleChange = (e) => {
+    setTitle(e.target.value);
+  };
+
+  const handleRatingChange = (e) => {
+    const nextRating = Number(e.target.value);
+    setRating(nextRating);
+  };
+
+  const handleContentChange = (e) => {
+    setContent(e.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    // HTML에서 submit 버튼을 사용하면 기본적으로 Get request를 한다. 그래서 기본동작을 막아줘야한다. 
+    e.preventDefault();
+    console.log({
+      title,
+      rating,
+      content,
+    });
+  };
+
+  return (
+    <form className="ReviewForm" onSubmit={handleSubmit}>
+      <input value={title} onChange={handleTitleChange} />
+      <input type="number" value={rating} onChange={handleRatingChange} />
+      <textarea value={content} onChange={handleContentChange} />
+      <button type="submit">확인</button>
+    </form>
+  );
+}
+
+export default ReviewForm;
+
+```
+
+
+
+
+
+#### 하나의 state로 form 구현하기
+
+- 이벤트 객체에서 name값을 가져올 수 있다는 점을 활용하자.
+- 코드
+
+```react
+import { useState } from 'react';
+import './ReviewForm.css';
+
+function ReviewForm() {
+  const [values, setValues] = useState("");
+
+  const handleChange = (e) => {
+    const [ name, value ] = e.target;
+    setValues((prevValues) => ({
+      ...prevValues,
+      [name] : value,
+    }));
+  }
+
+  const handleSubmit = (e) => {
+    // HTML에서 submit 버튼을 사용하면 기본적으로 Get request를 한다. 그래서 기본동작을 막아줘야한다. 
+    e.preventDefault();
+    console.log(values)
+  };
+
+  return (
+    <form className="ReviewForm" onSubmit={handleSubmit}>
+      <input names="title" value={valeus.title} onChange={handleChange} />
+      <input type="number" names="rating" value={values.rating} onChange={handleChange} />
+      <textarea names="content" value={values.content} onChange={handleChange} />
+      <button type="submit">확인</button>
+    </form>
+  );
+}
+
+export default ReviewForm;
+```
 
