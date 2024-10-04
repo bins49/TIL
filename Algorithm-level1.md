@@ -721,3 +721,102 @@ function solution(a, b, n) {
 }
 ```
 
+
+
+
+
+#### 덧칠하기
+
+- 페인트가 칠해진 길이가 n미터인 벽이 있다. 넓은 벽 전체에 페인트를 새로 칠하는 대신, 구역을 나누어 일부만 페인트를 새로 칠하자. 
+- 이를 위해 벽을 1미터 길이의 구역 n개로 나누고, 각 구역에 왼쪽부터 순서대로 1번부터 n번까지 번호를 붙였다.
+- 핵심은 페인트칠을 하는 횟수를 최소화하려고 한다.
+
+- 내 코드
+  - 핵심은 한 번의 롤러로 현재의 구역에서 얼마만큼 칠할 수 있는지 미리 계산하고 들어가면 좋다.
+
+```js
+function solution(n, m, section) {
+  let cnt = 0, painted = 0;
+  // 첫번째 구역에서 칠할 수 있는 구역 체크
+  painted = section[0] + m - 1
+  
+  for (let i = 0; i <= section.length -1; i++ {
+    if (painted < section[i]) {
+    	cnt++;
+      cur = section[i] + m  - 1;
+  	}
+  }
+  return cnt;
+}
+```
+
+
+
+#### 실패율
+
+- 스테이지 별로 실패율을 구해라
+- 초기 코드
+
+```js
+// 실패율을 구하는 함수
+function failureRate(N, len, map) {
+    let result = [];
+    for (let m of map) {
+        let [a, b] = m;
+        if (a <= N) {
+            result.push([a, b / len]);
+            len -= b;
+        }
+    }
+   // 실패율이 높은 스테이지부터 내림차순으로 스테이지의 번호가 담겨있는 배열을 return하자. 
+    let sort = result.sort((a, b) => b[1] - a[1]).map((e) => e[0]);
+    return sort;
+}
+
+
+function solution(N, stages) {
+    let answer = [];
+    
+    const fail = new Map();
+    
+    for (let i = 1; i <= N; i++) {
+        fail.set(i, 0);
+    }
+    
+    let len = stages.length;
+    stages.sort((a, b) => a - b);
+    // 스테이지에 도달했으나 아직 클리어하지 못한 플레이어의 수 / 스테이지에 도달한 플레이어 수 
+    for (let stage of stages) {
+        fail.set(stage, fail.has(stage) ? fail.get(stage) + 1 : 1);
+    }
+    answer = failureRate(N, len, fail);
+    return answer;
+    
+}
+```
+
+
+
+- 수정된 코드
+  - 다른 함수를 생성해서 사용하지 않더라도 하나의 함수 안에서 정리해서 사용할 수 있다.
+
+```js
+function solution(N, stages) {
+  const fail = new Map();
+  
+  for (let i = 1; i <= N; i++) fail.set(i, 0);
+  
+  let len = stages.length;
+  stages.forEach(stage => fail.set(stage, (fail.get(stage) || 0) + 1);
+   
+  // stage에 해당하는 부분만 slice 처리하고 map 메서드를 활용해서 실패율을 return 한다.
+  const result = Array.from(fail).slice(0, N).map(([stage, count]) => {
+    const rate = count / len;
+    len -= count;
+    return [stage, rate];
+  });
+  
+  return result.sort((a, b) => b[1]-a[1]).map(e => e[0]);
+}
+```
+
