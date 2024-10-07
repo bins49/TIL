@@ -641,7 +641,7 @@ function App() {
   
   const handleSearch = (e) => {
     e.preventDefault();
-    SetSearch(e.target['search'.value)
+    SetSearch(e.target['search'].value)
   };
   
   const handleLoadMore = () => {
@@ -791,7 +791,7 @@ function ReviewForm() {
   }
 
   const handleSubmit = (e) => {
-    // HTML에서 submit 버튼을 사용하면 기본적으로 Get request를 한다. 그래서 기본동작을 막아줘야한다. 
+    // HTML에서 submit눌렀을 때 페이지를 이동하는 동작이 나타난다.. 그래서 기본동작을 막아줘야한다. 
     e.preventDefault();
     console.log(values)
   };
@@ -807,5 +807,576 @@ function ReviewForm() {
 }
 
 export default ReviewForm;
+```
+
+
+
+
+
+#### 제어 컴포넌트와 비제어 컴포넌트
+
+- 제어 컴포넌트(Controlled Component)
+  - **인풋의 value 값을 React에서 지정**
+  - React에서 사용하는 값과 실제 인풋 값이 항상 일치
+  - **주로 권장되는 방법**
+
+- 예시 코드
+  - 아래처럼 value를 대문자로 설정하게 되면 사용자가 소문자를 입력해도 대문자로 변환된 value가 state로 전달되어 변경되기 때문에 계속해서 대문자가 value로 보여지게 된다. 
+
+```react
+function MyComponent() {
+  const [value, setValue] = useState("");
+  
+  const handleChange = (e) => {
+    const nextValue = e.target.value.toUpperCase();
+    setValues(nextValue);
+  }
+  
+  return <input value={value} onChange={handleChange}/> 
+}
+```
+
+- 다른 예시 코드
+
+```react
+function MyComponent({value, onChange}) {
+  
+  const handleChange = (e) => {
+    const nextValue = e.target.value.toUpperCase();
+    onChange(nextValue);
+  }
+  
+  return <input value={value} onChange={handleChange}/> 
+}
+
+function App() {
+    const [value, setValue] = useState("");
+  	
+  	const handleClear = () => SetValue("");
+  
+    return (
+    	<div>
+      	<MyComponent value = {value} onChange = {setValue}/>
+        <button onClick={handleClear}>지우기</button>
+      </div>
+    )
+}
+```
+
+
+
+- 비제어 컴포넌트(Uncontrolled Component)
+  - **인풋의 value 값을 React에서 지정하지 않음**
+  - 경우에 따라서 필요한 방법
+
+- 예시 코드
+  - 아래의 경우, value prop을 제거했다. 
+    - React에서 사용하는 값이랑 실제 input 값이랑 달라진다.
+
+```react
+function MyComponent() {
+  const [value, setValue] = useState("");
+  
+  const handleChange = (e) => {
+    const nextValue = e.target.value.toUpperCase();
+    setValues(nextValue);
+  }
+  
+  return <input onChange={handleChange}/> 
+}
+```
+
+
+
+
+
+#### 파일 인풋
+
+- FileInput은  보안 문제 때문에 value prop을 지정할 수 없다. 
+  - 반드시 비제어 컴포넌트로 만들어야 한다.
+- 예시 코드
+  - 잘못된 방식
+
+```react
+import { useState } from "react";
+
+function FileInput() {
+  const [value, setValue] = useState();
+
+  const handleChange = (e) => {
+    const nextValue = e.target.files[0];
+    setValue(nextValue);
+  };
+
+  return <input type="file" value={value} onChange={handleChange} />;
+}
+
+export default FileInput;
+```
+
+- 수정 후 
+
+```react
+import { useState } from "react";
+
+function FileInput() {
+  const [value, setValue] = useState();
+
+  const handleChange = (e) => {
+    const nextValue = e.target.files[0];
+    setValue(nextValue);
+  };
+
+  return <input type="file" onChange={handleChange} />;
+}
+
+export default FileInput;
+```
+
+
+
+- 비제어 컴포넌트로 file input 수정하기
+
+```react
+// Fileinput.js
+function FileInput({name, value, onChange}) {
+
+  const handleChange = (e) => {
+    const nextValue = e.target.files[0];
+    onChange(name, nextValue);
+  };
+
+  return <input type="file" onChange={handleChange} />;
+}
+
+export default FileInput;
+```
+
+```react
+// ReviewForm.js
+import { useState } from 'react';
+import FileInput from './FileInput';
+
+function ReviewForm() {
+  const [values, setValues] = useState({
+    title: '',
+    rating: 0,
+    content: '',
+    imgFile: null,
+  });
+  
+  const handleChange = (name, value) {
+    setValues((prevValues) => ({
+      ...prevValues,
+      [name] : value.
+    }))
+  }
+  
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    handleChange(name, value);
+  }
+  
+  return (
+  	<FileInput name="imgFile" value={values.imgFile} onChange ={handleChange}/>
+  )
+  
+}  
+```
+
+
+
+
+
+### 파일인풋
+
+- 파일 인풋은 반드시 **비제어 Input으로 만들어져야 한다.** 
+  - Stack trace라는 오류 추적을 통해서 알 수 있다.
+- 파일 인풋의 value 속성은 사용자만 직접 바꿀 수 있고 자바스크립트로 바꿀 때는 빈 문자열로만 바꿀 수 있다.
+- 문제코드 
+  - e.target.value를 출력하면 실제 파일 경로가 아니라 이상한 문자열이 출력되는데 이것은 보안 문제 때문에 웹브라우저에서 파일 경로를 숨겨준다.
+  - 이러한 문제 때문에 Fileinput은 value prop을 지정할 수 없다. 
+  - 반드시 비제어 컴포넌트로 만들어야 한다. 
+
+```react
+//FileInput.js
+import { useState } from "react";
+
+function FileInput() {
+  const [value, setValue] = useState();
+  
+  const handleChange = (e) => {
+    const nextValue = e.target.files[0];
+    setValue(nextValue);
+  }
+  
+  return <input type="file" value={value} onChange={handleChange} />
+}
+
+export default FileInput;
+```
+
+- 수정 후 코드
+  - value를 지워주면 오류없이 State값이 잘 변경된다. -> 비제어 컴포넌트
+
+```react
+//FileInput.js
+import { useState } from "react";
+
+function FileInput() {
+  const [value, setValue] = useState();
+  
+  const handleChange = (e) => {
+    const nextValue = e.target.files[0];
+    setValue(nextValue);
+  }
+  
+  return <input type="file" onChange={handleChange} />
+}
+
+export default FileInput;
+```
+
+- State 대신에 props를 사용하는 법 
+  - State Lifting
+    - 현재 FileInput의 State를 props로 바꾸고 ReviewForm 컴포넌트에 있는 State를 props로 내려준다.
+
+```react
+//FileInput.js
+import { useState } from "react";
+
+function FileInput({ name, value, onChange }) {
+  const handleChange = (e) => {
+    const nextValue = e.target.files[0];
+    onChange(name, nextValue);
+  }
+  
+  return <input type="file" onChange={handleChange} />
+}
+
+export default FileInput;
+```
+
+```react
+// ReviewForm.js
+function ReviewForm() {
+  const [values, setValues] = useState({
+    title: "",
+    rating: 0,
+    content: "",
+    imgFile: null,
+  });
+  
+  const handleChange = (name, value) => {
+    const {name, value} = e.target;
+    setValues((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
+  };
+  // FileInput에서 onChange를 name, value로 호출했다. 그래서 이런 경우를 처리하기 위해 좀 더 추상화된 함수를 만든다.
+  const handleInputChange = (e) => {
+    const {name, value} = e.target;
+    handleChange(name, value);
+  }
+  
+  return (
+  	<FileInput name="imgFile", value={values.imgFile} onChange={handleChange} />
+  )
+}
+```
+
+
+
+
+
+### ref로 DOM 노드 가져오기 
+
+- ref를 쓰면 실제 DOM 노드를 직접 참조할 수 있다.
+- **DOM 노드는 반드시 렌더링이 끝나야 생기니까 ref 객체의 current 값도 화면에 컴포넌트가 렌더링됐을 때만 존재한다. **
+  - 조건부 렌더링으로 컴포넌트가 사라지거나 하는 경우에는 이 값이 존재하지 않을 수도 있다.
+  - 그래서 항상 **inputRef.current**값이 존재하는지 확인한다. 
+
+```react
+import { useEffect, useRef } from "react";
+
+function FileInput({ name, value, onChange }) {
+  const inputRef = useRef();
+  
+  const handleChange = (e) => {
+    const nextValue = e.target.files[0];
+    onChange(name, nextValue);
+  }
+  
+  useEffect(() => {
+    if (inputRef.current) {
+      console.log(inputRef.current);
+    }
+  }, []);
+  
+  return <input type="file" onChange={handleChange} ref={inputRef} />;
+}
+
+export default FileInput;
+```
+
+
+
+### 파일 인풋 초기화
+
+```react
+import { useRef } from "react";
+
+function FileInput({ name, value, onChange }) {
+  const inputRef = useRef();
+  
+  const handleChange = (e) => {
+    const nextValue = e.target.files[0];
+    onChange(name, nextValue);
+  }
+  
+  const handleClearClick = () => {
+    const inputNode = inputRef.current;
+    if (!inputNode) return;
+    
+    inputNode.value = "";
+    onChange(name, null);
+  }
+  
+  
+  return (
+    <div>
+   		<input type="file" onChange={handleChange} ref={inputRef} />
+      {value && <button onClick={handleClearClick}>X</button>}
+    </div>
+   );
+}
+
+export default FileInput;
+```
+
+- Ref를 활용해도 이미지 크기 구할 수 있다.
+
+```react
+import { useRef } from "react";
+
+function Image({ src }) {
+  const imgRef = useRef();
+  
+  const handleSizeClick = () => {
+    const imgNode = imgRef.current;
+    if (!imgNode) return;
+    
+    const { width, height } = imgNode;
+    console.log(`${width} x ${height}`);
+  };
+  
+  return (
+  	<div>
+    	<img src={src} ref={imgRef} alt="크기를 구할 이미지" />
+      <button onClick={handleSizeClick}>크기 구하기</button>
+    </div>
+  );
+}
+```
+
+
+
+
+
+### 이미지 파일 미리보기
+
+- 인터넷에 올린 파일 링크 같이 사용자 컴퓨터에 있는 파일을 주소로 사용할 수 있다. 
+- `URL.createObjectURL()`을 사용하면 문자열을 리턴하고 이 문자열을 해당 파일의 주소처럼 쓸 수 있는 값이다. 
+  - 웹 브라우저에 메모리를 할당한다. 
+- 컴포넌트 함수에서 외부의 상태를 바꾸는 것을 **side effect**라고 한다.
+  - 네트워크 request도 일종의 side Effect이다.
+- 리액트에서는 side Effect를 다루는 경우에 주로 useEffect를 사용한다. 
+
+```react
+import { useEffect, useRef, useState } from 'react';
+
+function FileInput({ name, value, onChange }) {
+  const [preview, setPreview] = useState();
+  const inputRef = useRef();
+
+  const handleChange = (e) => {
+    const nextValue = e.target.files[0];
+    onChange(name, nextValue);
+  };
+
+  const handleClearClick = () => {
+    const inputNode = inputRef.current;
+    if (!inputNode) return;
+
+    inputNode.value = '';
+    onChange(name, null);
+  };
+
+  useEffect(() => {
+    if (!value) return;
+    const nextPreview = URL.createObjectURL(value);
+    setPreview(nextPreview);
+  }, [value]);
+  
+  return (
+  	<div>
+      <img src={preview} alt="이미지 미리보기" />
+      <input type="file" accept="image/png, image/jpeg" onChange={handleChange} ref={inputRef} />
+      {value && <button onClick={handleClearClick}>X</button>}
+    </div>
+  );
+}
+```
+
+
+
+### 사이드 이펙트 정리하기
+
+- 다른 파일을 선택하거나 파일 선택을 해제했을 때 메모리도 같이 해제해 줘야 한다. 
+  - 이 때 사용하는 함수가 `revokeObjectURL`이다.
+- 아래의 코드처럼 ObjectURL를 만들면서 웹 브라우저가 할당한 메모리가 바로 side effect이다..
+
+```react
+useEffect(() => {
+    if (!value) return;
+    const nextPreview = URL.createObjectURL(value);
+    setPreview(nextPreview);
+  	
+   // 더 이상 사용하지 않는 ObjectURL을 해제해 주는 코드가 실행된다.
+   	return () => {
+      setPreview();
+      URL.revokeObjectURL(nextPreview);
+    }
+  return (
+  	<div>
+      <img src={preview} alt="이미지 미리보기" />
+      <input type="file" accept="image/png, image/jpeg" onChange={handleChange} ref={inputRef} />
+      {value && <button onClick={handleClearClick}>X</button>}
+    </div>
+  );
+}, [value]);
+```
+
+- accept는 파일 인풋을 이미지 파일 하나만 선택하는데 사용한다.
+
+
+
+### 사이드 이펙트와 useEffect
+
+- Side Effect는 말 그대로 외부에 부수적인 작용을 하는 걸 말한다.
+- 예시
+  - add 함수를 실행하면 함수 외부의 상태가 바뀌기 대문에, 이런 함수를  side effect가 있다고 한다. 
+
+```js
+let count = 0;
+
+function add(a, b) {
+  const result = a + b;
+  count += 1; // 함수 외부의 값을 변경
+  return result;
+}
+
+const val1 = add(1, 2);
+const val2 = add(-4, 5);
+```
+
+- useEffect는 sideEffect를 실행하고 싶을 때 사용하는 함수이다. 
+- 주로 react 외부에 있는 데이터나 상태를 변경할 때 사용한다. 
+
+
+
+- useEffect말고 핸들러 함수만 사용했을 때 
+
+```react
+import { useState } from 'react';
+
+const INITIAL_TITLE = 'Untitled';
+
+function App() {
+  const [title, setTitle] = useState(INITIAL_TITLE);
+
+  const handleChange = (e) => {
+    const nextTitle = e.target.value;
+    setTitle(nextTitle);
+    document.title = nextTitle;
+  };
+
+  const handleClearClick = () => {
+    const nextTitle = INITIAL_TITLE;
+    setTitle(nextTitle);
+    document.title = nextTitle;
+  };
+
+  return (
+    <div>
+      <input value={title} onChange={handleChange} />
+      <button onClick={handleClearClick}>초기화</button>
+    </div>
+  );
+}
+
+export default App;
+```
+
+- useEffect를 사용했을 때 
+
+```react
+import { useEffect, useState } from 'react';
+
+const INITIAL_TITLE = 'Untitled';
+
+function App() {
+  const [title, setTitle] = useState(INITIAL_TITLE);
+
+  const handleChange = (e) => {
+    const nextTitle = e.target.value;
+    setTitle(nextTitle);
+  };
+
+  const handleClearClick = () => {
+    setTitle(INITIAL_TITLE);
+  };
+  // useEffect를 사용하면 반복하는 코드를 줄일 수 있다. 
+  useEffect(() => {
+    document.title = title;
+  }, [title]);
+
+  return (
+    <div>
+      <input value={title} onChange={handleChange} />
+      <button onClick={handleClearClick}>초기화</button>
+    </div>
+  );
+}
+
+export default App;
+```
+
+
+
+- 정리 함수가 실행되는 시점
+  - 콜백을 한 번 실행했으면, 정리 함수도 반드시 한 번 실행된다
+  - 새로운 콜백 함수가 호출되기 전에 실행되거나, 컴포넌트가 화면에서 사라지기 전에 실행된다.
+
+```react
+import { useEffect, useState } from "react"
+
+function Timer() {
+  const [second, setSecond] = useState(0);
+  
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      console.log('타이머 실행중 ...');
+      setSecond((prevSecond) => prevSecond + 1);
+    })
+  }, 1000);
+  console.log("타이머 시작");
+  
+  return () => {
+    clearInterval(timerId);
+    console.log("타이머 멈춤")
+  }
+}, []);
 ```
 
