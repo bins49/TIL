@@ -820,3 +820,114 @@ function solution(N, stages) {
 }
 ```
 
+
+
+### 다트 게임[2018 KaKao Blind Recruitment]
+
+- 다트 게임의 점수 계산 로직을 구성하는 문제다.
+  - 주어진 문자열에 `Single, Double, Triple, *, #` 가 존재한다.
+  - 이거를 점수로 환산해야 한다. 
+- 정답 코드 
+
+```js
+function solution(dartResult) {
+    let answer = [];
+  // 정규표현식을 match 메서드를 사용하면 문자열을 패턴 기준으로 split하는 효과가 있다.
+    let dart = dartResult.match(/\d+|[A-Z]|\#|\*/g);
+    // forEach구문을 활용해서 반복문을 돌면서 특정 문자열을 점수로 환산한다.
+    dart.forEach((e, i) => {
+        if (e == "S") answer.push(Number(dart[i-1]));
+        if (e == "D") answer.push(Number(dart[i-1] ** 2));
+        if (e == "T") answer.push(Number(dart[i-1] ** 3));
+        if (e == "#") answer[answer.length - 1] *= -1;
+        if (e == "*") {
+            answer[answer.length - 1] *= 2;
+          // 만약 별표 앞에 2개 이상의 숫자가 존재하면 맨 앞의 숫자에 2를 곱한다.
+            if (answer.length > 1) answer[answer.length - 2] *= 2;
+        }
+    })
+    // reduce 메서드를 활용해서 최종적으로 문자열을 더한다. 
+    return answer.reduce((acc, cur) => acc + cur, 0);
+}
+```
+
+
+
+### 로또의 최고 순위와 최저 순위
+
+- 주어진 0은 알 수 없는 번호다. 그래서 로또 번호로 바꿀 수도 있다. 이렇게 했을때 나올 수 있는 최고 순위와 최저 순위를 구하는 문제
+
+- 정답 코드
+  - switch case 구문을 활용해서 1~6위까지의 순위를 구했다.
+  - 최저 순위는 현재 번호가 로또 당첨 번호에서 몇 개나 맞는지를 확인하면 되고, 최저 순위는 0의 개수만 확인해서 기존에 맞은 개수에 더하면 되는 문제 
+
+```js
+function prizeTiers(number) {
+    let answer = 0;
+    // 1등부터 6등까지 당첨 번호 개수에 따른 등수 산정
+    switch (number) {
+        case 6:
+            answer = 1;
+            break;
+        case 5: 
+            answer = 2;
+            break;
+        case 4:
+            answer = 3;
+            break;
+        case 3:
+            answer = 4;
+            break;
+        case 2:
+            answer = 5;
+            break;
+        case 1:
+            answer = 6;
+            break;
+        case 0:
+            answer = 6;
+            break;
+    }
+    return answer;
+}
+
+function solution(lottos, win_nums) {
+    // lowest = 현재 주어진 lottos 개수 
+    // highest = 현재 주어진 번호에서 0의 개수를 로또 정답 번호로 바꾼다. 단 중복을 제거한다. 
+    
+    // 로또 당첨 번호랑 현재 가지고 있는 번호랑 얼마나 맞는지 체크 
+    let overlap = win_nums.filter((e) => lottos.includes(e));
+    // 0의 개수 찾기
+    let zero = lottos.filter((e) => e == 0).length;
+    
+    // 가장 낮은 순위는 현재 가지고 있는 번호에서 당첨 번호랑 몇 개 일치하는지에 따라 등수 산정
+    let lowest = prizeTiers(overlap.length);
+    // 가장 높은 순위의 경우 현재 가지고 있는 번호에서 0을 몇 개 가지고 있는지와 현재 번호와 당첨 번호가 몇 개 일치하는지를 더한 결과 
+    let highest = prizeTiers(overlap.length + zero);
+    
+    return [highest, lowest];
+    
+}
+```
+
+
+
+- 개선된 코드
+  - 다른 사람 코드를 살펴보니 굳이 switch case 구문을 만들지 않아도 된다.
+
+```js
+function solution(lottos, win_nums) {
+    const prize = [6, 6, 5, 4, 3, 2, 1];
+    // lowest = 현재 주어진 lottos 개수 
+    // highest = 현재 주어진 번호에서 0의 개수를 로또 정답 번호로 바꾼다. 단 중복을 제거한다. 
+    
+    // 로또 당첨 번호랑 현재 가지고 있는 번호랑 얼마나 맞는지 체크 
+    let overlap = win_nums.filter((e) => lottos.includes(e)).length;
+    // 0의 개수 찾기
+    let zero = lottos.filter((e) => e == 0).length;
+    
+    return [prize[overlap + zero], prize[overlap]];
+    
+}
+```
+
