@@ -288,3 +288,47 @@ export async function createColorSurvey(survey) {
   ```
 
   
+
+#### axios error
+
+- `fetch`함수는 400이나 500 에러 코드가 response가 되어도 promise가 fullfilled되는 문제가 있었다. 
+- `axios`함수는 반대로 400이나 500 에러 코드가 response가 되면 promise가 reject가 된다. 
+
+- try catch 구문을 사용하면 axios가 객체의 메시지를 알아서 설정해 준다.
+
+```js
+//main.js
+import {getColorSurveys, getColorSurvey, createColorSurvey} from "./api.js";
+
+try {
+  const survey = await getColorSurvey(123);
+  console.log(survey);
+} catch (e) {
+  console.log(e.message);
+  // response를 접근할 수 있다.
+  console.log(e.response);
+  // status와 data 프로퍼티에 접근 가능하다.
+  console.log(e.response.status);
+  console.log(e.response.data);
+}
+```
+
+- **주의점**
+  - `response.status` or `response.data`의 경우 response가 돌아올 때만 response 객체를 반환해준다. 따라서 미리 확인하는 것이 중요하다.
+- 반영된 코드
+
+```js
+try {
+  const survey = await getColorSurvey(123);
+  console.log(survey);
+} catch (e) {
+	if (e.response) {
+    console.log(e.response.status);
+  	console.log(e.response.data);
+  } else {
+    console.log("리퀘스트가 실패했습니다.")
+  }
+  
+}
+```
+
